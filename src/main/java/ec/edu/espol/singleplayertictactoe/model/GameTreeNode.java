@@ -7,20 +7,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class GameTreeNode {
+    private final List<GameTree> children;
+    private final Player playerTurn;
+    private final Player opponentTurn;
+    private final char[][] board;
     private int utility;
-    private List<GameTree> children;
-    private Player playerTurn;
-    private Player opponentTurn;
-    private char[][] board;
     private int row;
     private int column;
 
     public GameTreeNode(char[][] board, Player playerTurn, Player opponentTurn) {
         this.board = new char[3][3];
         for (int i = 0 ; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                this.board[i][j] = board[i][j];
-            }
+            System.arraycopy(board[i], 0, this.board[i], 0, 3);
         }
         children = new LinkedList<>();
         this.playerTurn = playerTurn;
@@ -53,6 +51,12 @@ public class GameTreeNode {
         return board;
     }
 
+    public void setBoard(char[][] board) {
+        for (int i = 0; i < 3; i++) {
+            System.arraycopy(board[i], 0, this.board[i], 0, 3);
+        }
+    }
+
     public int getRow() {
         return this.row;
     }
@@ -64,6 +68,11 @@ public class GameTreeNode {
     public void setLastMove(int row, int column) {
         this.row = row;
         this.column = column;
+    }
+
+    public void restoreChildren(char[][] board) {
+        setBoard(board);
+        children.clear();
     }
 
     public void addChild(GameTree child) {
@@ -205,5 +214,25 @@ public class GameTreeNode {
             }
         }
         return newBoard;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+
+        for(int i = 0; i<3; i++) {
+            string.append("|  ");
+            for (int j = 0; j<3; j++) {
+                if (board[i][j] == ' ') {
+                    string.append("_" ).append("  ");
+                } else {
+                    string.append(board[i][j]).append("  ");
+                }
+            }
+            string.append("|").append("\n");
+        }
+        string.append("\n");
+
+        return string.toString();
     }
 }

@@ -5,28 +5,22 @@ import ec.edu.espol.singleplayertictactoe.constants.GameTurns;
 import java.util.List;
 
 public class GameTree {
-    private GameTreeNode root;
-    private Player humanTurn;
-    private Player AITurn;
+    private final GameTreeNode root;
 
     public GameTree(char[][] initialBoard, char humanTurn) {
-        this.humanTurn = new Player(humanTurn);
-        this.AITurn = (this.humanTurn.getTurn() == GameTurns.X_TURNS) ?
+        Player humanPlayer = new Player(humanTurn);
+        Player AIPlayer = (humanPlayer.getTurn() == GameTurns.X_TURNS) ?
                 new Player(GameTurns.O_TURNS) :
                 new Player(GameTurns.X_TURNS);
-        this.root = new GameTreeNode(initialBoard, this.humanTurn, AITurn);
+        this.root = new GameTreeNode(initialBoard, humanPlayer, AIPlayer);
     }
 
     public GameTreeNode getRoot() {
         return root;
     }
 
-    public Player getHumanTurn() {
-        return humanTurn;
-    }
-
-    public Player getAITurn() {
-        return AITurn;
+    public void restoreTree(char[][] board) {
+        root.restoreChildren(board);
     }
 
     public void buildTree() {
@@ -54,7 +48,7 @@ public class GameTree {
             buildTurnTree(child, depth - 1);
         }
 
-        if (node.getPlayerTurn() == getAITurn()) {
+        if (node.getPlayerTurn() == getRoot().getOpponentTurn()) {
             int maxUtility = Integer.MIN_VALUE;
             for (GameTree child : node.getChildren()) {
                 maxUtility = Math.max(maxUtility, child.getRoot().getUtility());
