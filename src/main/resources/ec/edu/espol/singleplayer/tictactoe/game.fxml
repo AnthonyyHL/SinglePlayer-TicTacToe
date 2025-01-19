@@ -36,7 +36,12 @@
             </Lighting>
          </effect>
       </GridPane>
-      <Label fx:id="labelestado" alignment="CENTER" contentDisplay="CENTER" layoutX="149.0" layoutY="376.0" prefHeight="38.0" prefWidth="336.0" text="En partida" textFill="#94dff8">
+      <Label fx:id="labelTurno" alignment="CENTER" contentDisplay="CENTER" layoutX="149.0" layoutY="370.0" prefHeight="38.0" prefWidth="336.0" text="Turno del juego" textFill="#94dff8">
+         <font>
+            <Font name="System Bold Italic" size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="labelestado" alignment="CENTER" contentDisplay="CENTER" layoutX="149.0" layoutY="396.0" prefHeight="38.0" prefWidth="336.0" text="En partida" textFill="#94dff8">
          <font>
             <Font name="System Bold Italic" size="18.0" />
          </font>

@@ -47,6 +47,8 @@ public class GameController {
     private Button Botonjugardenuevo;
     @FXML
     private Button BtPausaresume;
+    @FXML
+    private Label labelTurno;
     
      
     
@@ -68,22 +70,22 @@ public class GameController {
         stage.close();
     }
     public void init(Stage stage, SecondaryController ventanaAnterior) {
-         this.stage = stage;
-    this.ventanaAnterior = ventanaAnterior;
-    this.game = new Game();
-    this.currentPlayer = GameState.doesHumanStart() ? 
-        GameState.getSelectedSymbol() : 
-        (GameState.getSelectedSymbol() == 'X' ? 'O' : 'X');
-    
-    // Inicializar estado de botones
-    BtPausaresume.setText("Pausar");
-    isPaused = false;
-    
-    inicializarTablero();
-    
-    if (!GameState.doesHumanStart()) {
-        realizarMovimientoIA();
-    }
+        this.stage = stage;
+        this.ventanaAnterior = ventanaAnterior;
+        this.game = new Game();
+        this.currentPlayer = GameState.doesHumanStart() ? 
+            GameState.getSelectedSymbol() : 
+            (GameState.getSelectedSymbol() == 'X' ? 'O' : 'X');
+
+        // Inicializar estado de botones
+        BtPausaresume.setText("Pausar");
+        isPaused = false;
+
+        inicializarTablero();
+        actualizarTurno();
+        if (!GameState.doesHumanStart()) {
+            realizarMovimientoIA();
+        }
     }
 
     private void inicializarTablero() {
@@ -125,6 +127,11 @@ public class GameController {
     
      private void realizarMovimiento(int row, int col, Text text) {
         text.setText(String.valueOf(currentPlayer));
+        if (currentPlayer == 'X') {
+            text.setFill(javafx.scene.paint.Color.valueOf("#FF867F")); // Rojo tomate para 'X'
+        } else {
+            text.setFill(javafx.scene.paint.Color.valueOf("#A4FF80")); // Verde lima para 'O'
+        }
         game.getBoard()[row][col] = currentPlayer;
         
         verificarEstadoJuego();
@@ -132,6 +139,7 @@ public class GameController {
         if (!gameEnded) {
             // Cambiar al siguiente jugador
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+            actualizarTurno();
         }
     }
     
@@ -152,7 +160,14 @@ public class GameController {
         }
     }
     
-    
+    private void actualizarTurno() {
+        if (currentPlayer == GameState.getSelectedSymbol()) {
+            labelTurno.setText("Turno de la persona: " + currentPlayer);
+        } else {
+            labelTurno.setText("Turno de la IA: " + currentPlayer);
+        }
+    }
+
     
     private void verificarEstadoJuego() {
         String estado = game.getGameStatus();
@@ -161,6 +176,7 @@ public class GameController {
             labelestado.setText(estado);
         }
     }
+
     private Node getNodeFromGridPane(GridPane gridPane, int col, int row) {
     for (Node node : gridPane.getChildren()) {
         Integer columnIndex = GridPane.getColumnIndex(node);
@@ -182,7 +198,6 @@ public class GameController {
     
     // Reiniciar el texto del estado
     labelestado.setText("En partida");
-    
     // Reiniciar el jugador actual
     this.currentPlayer = GameState.doesHumanStart() ? 
         GameState.getSelectedSymbol() : 
@@ -196,7 +211,7 @@ public class GameController {
             text.setText("");
         }
     }
-    
+    actualizarTurno();
     // Si la IA empieza, hacer su movimiento
     if (!GameState.doesHumanStart()) {
         realizarMovimientoIA();
