@@ -10,6 +10,6 @@ module ec.edu.espol.singleplayertictactoe {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 
-    opens ec.edu.espol.singleplayertictactoe to javafx.fxml;
-    exports ec.edu.espol.singleplayertictactoe;
+    exports ec.edu.espol.singleplayertictactoe.ui;
+    opens ec.edu.espol.singleplayertictactoe.ui to javafx.fxml;
 }
