@@ -195,11 +195,12 @@ public class GameController {
                     realizarMovimiento(mejorMovimiento[0], mejorMovimiento[1], text);
                 }
             }
+            verificarEstadoJuego();
             
             // Calcular mejor jugada posible del jugador humano
             int[] mejorMovimientoHumano = game.findBestMove();
             limpiarTablero(tableroMejor);
-            if (mejorMovimientoHumano != null) {
+            if (mejorMovimientoHumano != null && !gameEnded) {
                 StackPane cellMejor = (StackPane) getNodeFromGridPane(tableroMejor, mejorMovimientoHumano[1], mejorMovimientoHumano[0]);
                 if (cellMejor != null) {
                     Text textMejor = (Text) cellMejor.getChildren().get(0);
