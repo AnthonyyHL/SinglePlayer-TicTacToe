@@ -48,7 +48,7 @@ public class SecondaryController {
     FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("game.fxml"));
     Parent root = fxmlLoader.load();
     GameController controller = fxmlLoader.getController();
-    Scene scene = new Scene(root, 640, 480);
+    Scene scene = new Scene(root, 840, 480);
     Stage newStage = new Stage();  
     newStage.setTitle("TicTacToe game");
     newStage.setScene(scene);

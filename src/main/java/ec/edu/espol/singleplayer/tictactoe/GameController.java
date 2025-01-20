@@ -42,6 +42,10 @@ public class GameController {
     @FXML
     private GridPane tablero;
     @FXML
+    private GridPane tableroAnterior;
+    @FXML
+    private GridPane tableroMejor;
+    @FXML
     private Label labelestado;
     @FXML
     private Button Botonjugardenuevo;
@@ -92,9 +96,27 @@ public class GameController {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 StackPane cell = createCell(i, j);
+                StackPane cell1 = createCellApart(i, j);
+                StackPane cell2 = createCellApart(i, j);
                 tablero.add(cell, j, i); // Ahora usa el nombre correcto tablero
+                tableroAnterior.add(cell1,j,i);
+                tableroMejor.add(cell2,j,i);
             }
         }
+        
+    }
+    
+    private StackPane createCellApart(int row, int col) {
+        StackPane cell = new StackPane();
+        cell.setPrefSize(100, 100);
+        cell.setStyle("-fx-background-color: #03186b; -fx-border-color: #94dff8;");
+        
+        Text text = new Text();
+        text.setFont(Font.font("System", 25));
+        text.setFill(javafx.scene.paint.Color.valueOf("#94dff8"));
+        
+        cell.getChildren().add(text);
+        return cell;
     }
     
     private StackPane createCell(int row, int col) {
@@ -125,7 +147,7 @@ public class GameController {
     }
     }
     
-     private void realizarMovimiento(int row, int col, Text text) {
+    private void realizarMovimiento(int row, int col, Text text) {
         text.setText(String.valueOf(currentPlayer));
         if (currentPlayer == 'X') {
             text.setFill(javafx.scene.paint.Color.valueOf("#FF867F")); // Rojo tomate para 'X'
@@ -133,7 +155,16 @@ public class GameController {
             text.setFill(javafx.scene.paint.Color.valueOf("#A4FF80")); // Verde lima para 'O'
         }
         game.getBoard()[row][col] = currentPlayer;
-        
+        //Muestra los movimientos anteriores del humano
+        if (currentPlayer == GameState.getSelectedSymbol()) {
+            //limpiarTablero(tableroAnterior);
+            StackPane cellAnterior = (StackPane) getNodeFromGridPane(tableroAnterior, col, row);
+            if (cellAnterior != null ) {
+                Text textAnterior = (Text) cellAnterior.getChildren().get(0);
+                textAnterior.setText(String.valueOf(currentPlayer));
+                textAnterior.setFill(text.getFill());
+            }
+        }
         verificarEstadoJuego();
         
         if (!gameEnded) {
@@ -153,10 +184,32 @@ public class GameController {
                     realizarMovimiento(mejorMovimiento[0], mejorMovimiento[1], text);
                 }
             }
+            
+            // Calcular mejor jugada posible del jugador humano
+            int[] mejorMovimientoHumano = game.findBestMove();
+            limpiarTablero(tableroMejor);
+            if (mejorMovimientoHumano != null) {
+                StackPane cellMejor = (StackPane) getNodeFromGridPane(tableroMejor, mejorMovimientoHumano[1], mejorMovimientoHumano[0]);
+                if (cellMejor != null) {
+                    Text textMejor = (Text) cellMejor.getChildren().get(0);
+                    textMejor.setText(String.valueOf(GameState.getSelectedSymbol()));
+                    textMejor.setFill(javafx.scene.paint.Color.valueOf("#FFD700")); // Color dorado para destacar
+                }
+            }
         } catch (Exception e) {
             System.err.println("Error en movimiento IA: " + e.getMessage());
             // Puedes mostrar un mensaje al usuario si lo deseas
             labelestado.setText("Error en el movimiento de la IA");
+        }
+    }
+    
+    private void limpiarTablero(GridPane gridPane) {
+        for (Node node : gridPane.getChildren()) {
+            if (node instanceof StackPane) {
+                StackPane cell = (StackPane) node;
+                Text text = (Text) cell.getChildren().get(0);
+                text.setText("");
+            }
         }
     }
     
@@ -203,14 +256,10 @@ public class GameController {
         GameState.getSelectedSymbol() : 
         (GameState.getSelectedSymbol() == 'X' ? 'O' : 'X');
     
-    // Limpiar el tablero
-    for (Node node : tablero.getChildren()) {
-        if (node instanceof StackPane) {
-            StackPane cell = (StackPane) node;
-            Text text = (Text) cell.getChildren().get(0);
-            text.setText("");
-        }
-    }
+    // Limpiar el tableros
+    limpiarTablero(tablero);
+    limpiarTablero(tableroMejor);
+    limpiarTablero(tableroAnterior);
     actualizarTurno();
     // Si la IA empieza, hacer su movimiento
     if (!GameState.doesHumanStart()) {
