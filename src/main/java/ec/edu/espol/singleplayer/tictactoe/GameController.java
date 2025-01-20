@@ -8,6 +8,7 @@ import ec.edu.espol.singleplayertictactoe.constants.GameState;
 import ec.edu.espol.singleplayertictactoe.model.Game;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -88,7 +89,7 @@ public class GameController {
         inicializarTablero();
         actualizarTurno();
         if (!GameState.doesHumanStart()) {
-            realizarMovimientoIA();
+            realizarMovimientoRandom();
         }
     }
 
@@ -157,7 +158,6 @@ public class GameController {
         game.getBoard()[row][col] = currentPlayer;
         //Muestra los movimientos anteriores del humano
         if (currentPlayer == GameState.getSelectedSymbol()) {
-            //limpiarTablero(tableroAnterior);
             StackPane cellAnterior = (StackPane) getNodeFromGridPane(tableroAnterior, col, row);
             if (cellAnterior != null ) {
                 Text textAnterior = (Text) cellAnterior.getChildren().get(0);
@@ -172,6 +172,17 @@ public class GameController {
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
             actualizarTurno();
         }
+    }
+    
+    private void realizarMovimientoRandom(){
+        Random random = new Random();
+        int randomI = random.nextInt(3);
+        int randomJ = random.nextInt(3);
+        StackPane cellRandom = (StackPane) getNodeFromGridPane(tablero, randomJ, randomI);
+                if (cellRandom != null) {
+                    Text text = (Text) cellRandom.getChildren().get(0);
+                    realizarMovimiento(randomI,randomJ, text);
+                }
     }
     
     private void realizarMovimientoIA() {
@@ -263,7 +274,7 @@ public class GameController {
     actualizarTurno();
     // Si la IA empieza, hacer su movimiento
     if (!GameState.doesHumanStart()) {
-        realizarMovimientoIA();
+        realizarMovimientoRandom();
     }
     }
 
