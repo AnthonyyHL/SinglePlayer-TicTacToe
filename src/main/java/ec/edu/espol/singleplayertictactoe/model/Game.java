@@ -5,6 +5,7 @@
 package ec.edu.espol.singleplayertictactoe.model;
 
 import ec.edu.espol.singleplayertictactoe.util.GameState;
+import ec.edu.espol.singleplayertictactoe.util.constants.GameTurns;
 
 /**
  *
@@ -30,7 +31,7 @@ public class Game {
         
         // Configurar jugadores basados en el símbolo seleccionado
         char humanSymbol = GameState.getSelectedSymbol();
-        char aiSymbol = (humanSymbol == 'X') ? 'O' : 'X';
+        char aiSymbol = (humanSymbol == GameTurns.X_TURNS) ? GameTurns.O_TURNS : GameTurns.X_TURNS;
         
         this.human = new Player(humanSymbol);
         this.ai = new Player(aiSymbol);

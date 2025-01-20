@@ -22,7 +22,7 @@ public class GameTree {
     private static final int VICTORIA_IA = 10;
     private static final int VICTORIA_HUMANO = -10;
     private static final int EMPATE = 0;
-    private static final int PROFUNDIDAD_MAXIMA = 6;
+    private static final int PROFUNDIDAD_MAXIMA = 9;
     
     private final GameTreeNode root;
 
