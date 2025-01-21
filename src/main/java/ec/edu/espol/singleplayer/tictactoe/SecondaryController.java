@@ -1,7 +1,6 @@
 package ec.edu.espol.singleplayer.tictactoe;
 
 import ec.edu.espol.singleplayertictactoe.constants.GameState;
-import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,8 +12,10 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class SecondaryController {
-   private PrimaryController  ventana;
+   private PrimaryController  ventana; 
    private Stage stage ;
    
     @FXML

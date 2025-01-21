@@ -5,6 +5,7 @@
 package ec.edu.espol.singleplayertictactoe.model;
 
 import ec.edu.espol.singleplayertictactoe.constants.GameTurns;
+
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class GameTree {
     private static final int VICTORIA_IA = 10;
     private static final int VICTORIA_HUMANO = -10;
     private static final int EMPATE = 0;
-    private static final int PROFUNDIDAD_MAXIMA = 6;
+    private static final int PROFUNDIDAD_MAXIMA = 9;
     
     private final GameTreeNode root;
 
@@ -33,45 +34,68 @@ public class GameTree {
         this.root = new GameTreeNode(initialBoard, humanPlayer, AIPlayer);
     }
 
+    public GameTreeNode getRoot() {
+        return root;
+    }
+
+    /**
+     * Construye el árbol de decisiones a partir del nodo raíz.
+     */
+    private void buildTree(GameTreeNode node) {
+        if (node.isTerminalState()) {
+            node.calculateUtility(); // Calcular la utilidad en el estado terminal
+            return;
+        }
+
+        // Obtener movimientos posibles desde el estado actual
+        List<int[]> possibleMoves = node.getPossibleMoves();
+        for (int[] move : possibleMoves) {
+            // Crear un nuevo nodo para el siguiente estado
+            char[][] newBoard = node.copyBoard();
+            newBoard[move[0]][move[1]] = node.getPlayerTurn().getTurn(); // Realizar el movimiento
+            GameTree childTreeNode = new GameTree(newBoard, node.getOpponentTurn().getTurn());
+            childTreeNode.getRoot().setLastMove(move[0], move[1]);
+            node.addChild(childTreeNode); // Añadir el nodo hijo
+            buildTree(childTreeNode.getRoot()); // Llamar recursivamente para construir el árbol desde el nodo hijo
+        }
+    }
+
     /**
      * Encuentra el mejor movimiento posible para la IA
      * @return coordenadas [fila, columna] del mejor movimiento
      */
     public int[] findBestMove() {
-        int[] bestMove = {-1, -1};
-        int bestScore = Integer.MIN_VALUE;
-        char[][] board = root.getBoard();
-        
-        // Verificar victoria inmediata
-        int[] winningMove = encontrarMovimientoGanador(board, root.getPlayerTurn().getTurn());
+        // Aquí puedes implementar la lógica para seleccionar el mejor movimiento
+        // utilizando el árbol de decisiones construido.
+        return selectBestMove(root);
+    }
+
+    public int[] selectBestMove(GameTreeNode root) {
+        buildTree(root);
+
+        int[] winningMove = encontrarMovimientoGanador(root.getBoard(), root.getPlayerTurn().getTurn());
         if (winningMove != null) {
             return winningMove;
         }
-        
+
         // Verificar necesidad de bloqueo
-        int[] blockingMove = encontrarMovimientoGanador(board, root.getOpponentTurn().getTurn());
+        int[] blockingMove = encontrarMovimientoGanador(root.getBoard(), root.getOpponentTurn().getTurn());
         if (blockingMove != null) {
             return blockingMove;
         }
-        
-        // Aplicar minimax para encontrar el mejor movimiento
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (board[i][j] == ' ') {
-                    board[i][j] = root.getPlayerTurn().getTurn();
-                    int score = minimax(board, 0, false);
-                    board[i][j] = ' ';
-                    
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove[0] = i;
-                        bestMove[1] = j;
-                    }
-                }
+
+        GameTreeNode bestChild = null;
+        int maxUtility = Integer.MIN_VALUE;
+
+        for (GameTree child : getRoot().getChildren()) {
+            GameTreeNode childNode = child.getRoot();
+            if (childNode.getUtility() > maxUtility) {
+                maxUtility = childNode.getUtility();
+                bestChild = childNode;
             }
         }
-        
-        return bestMove;
+
+        return bestChild != null ? bestChild.getLastMove() : null;
     }
 
     /**
@@ -148,7 +172,7 @@ public class GameTree {
 
     
     private List<int[]> getPossibleMoves(char[][] board) {
-        java.util.List<int[]> moves = new java.util.ArrayList<>();
+        List<int[]> moves = new java.util.ArrayList<>();
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (board[i][j] == ' ') {

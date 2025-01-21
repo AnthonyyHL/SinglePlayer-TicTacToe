@@ -5,15 +5,11 @@
 package ec.edu.espol.singleplayer.tictactoe;
 
 import ec.edu.espol.singleplayertictactoe.constants.GameState;
+import ec.edu.espol.singleplayertictactoe.constants.GameTurns;
 import ec.edu.espol.singleplayertictactoe.model.Game;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Random;
-import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,6 +21,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.util.Random;
 
 /**
  * FXML Controller class
@@ -80,7 +79,7 @@ public class GameController {
         this.game = new Game();
         this.currentPlayer = GameState.doesHumanStart() ? 
             GameState.getSelectedSymbol() : 
-            (GameState.getSelectedSymbol() == 'X' ? 'O' : 'X');
+            (GameState.getSelectedSymbol() == GameTurns.X_TURNS) ? GameTurns.O_TURNS : GameTurns.X_TURNS;
 
         // Inicializar estado de botones
         BtPausaresume.setText("Pausar");
@@ -150,7 +149,7 @@ public class GameController {
     
     private void realizarMovimiento(int row, int col, Text text) {
         text.setText(String.valueOf(currentPlayer));
-        if (currentPlayer == 'X') {
+        if (currentPlayer == GameTurns.X_TURNS) {
             text.setFill(javafx.scene.paint.Color.valueOf("#FF867F")); // Rojo tomate para 'X'
         } else {
             text.setFill(javafx.scene.paint.Color.valueOf("#A4FF80")); // Verde lima para 'O'
@@ -169,7 +168,7 @@ public class GameController {
         
         if (!gameEnded) {
             // Cambiar al siguiente jugador
-            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+            currentPlayer = (currentPlayer == GameTurns.X_TURNS) ? GameTurns.O_TURNS : GameTurns.X_TURNS;
             actualizarTurno();
         }
     }
@@ -266,7 +265,7 @@ public class GameController {
     // Reiniciar el jugador actual
     this.currentPlayer = GameState.doesHumanStart() ? 
         GameState.getSelectedSymbol() : 
-        (GameState.getSelectedSymbol() == 'X' ? 'O' : 'X');
+        (GameState.getSelectedSymbol() == GameTurns.X_TURNS) ? GameTurns.O_TURNS : GameTurns.X_TURNS;
     
     // Limpiar el tableros
     limpiarTablero(tablero);

@@ -1,6 +1,5 @@
 package ec.edu.espol.singleplayer.tictactoe;
 
-import ec.edu.espol.singleplayertictactoe.model.Game;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

@@ -5,8 +5,8 @@
 package ec.edu.espol.singleplayertictactoe.model;
 
 import ec.edu.espol.singleplayertictactoe.constants.GameTurns;
+
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -33,6 +33,10 @@ public class GameTreeNode {
         this.children = new ArrayList<>();
         this.lastMove = new int[]{-1, -1};
         this.utility = 0;
+    }
+
+    public char[][] copyBoard() {
+        return copyBoard(board);
     }
 
     /**
@@ -140,13 +144,55 @@ public class GameTreeNode {
      * Calcula la utilidad de este nodo basado en el estado del juego
      */
     public void calculateUtility() {
-        if (isWinningState(playerTurn.getTurn())) {
-            utility = 1;
-        } else if (isWinningState(opponentTurn.getTurn())) {
-            utility = -1;
-        } else {
-            utility = 0;
+        int playerPossibilities = calculatePossibilities(playerTurn);
+        int opponentPossibilities = calculatePossibilities(opponentTurn);
+
+        this.utility = playerPossibilities - opponentPossibilities;
+    }
+
+    public int calculatePossibilities(Player player) {
+        char opponentTurn = (player.getTurn() == GameTurns.X_TURNS) ?
+                GameTurns.O_TURNS :
+                GameTurns.X_TURNS;
+        int possibilities = 0;
+
+        // Checking Rows
+        for (int i = 0; i < 3; i++) {
+            if (
+                    board[i][0] != opponentTurn &&
+                            board[i][0] != board[i][1] &&
+                            board[i][0] != board[i][2]
+            ) { possibilities++; }
         }
+
+        // Checking Columns
+        for (int j = 0; j < 3; j++) {
+            if (
+                    board[0][j] != opponentTurn &&
+                            board[0][j] != board[1][j] &&
+                            board[0][j] != board[2][j]
+            ) { possibilities++; }
+        }
+
+        // Checking Straight Diagonal
+        for (int j = 0; j < 3; j++) {
+            if (
+                    board[0][0] != opponentTurn &&
+                            board[0][0] != board[1][1] &&
+                            board[0][0] != board[2][2]
+            ) { possibilities++; }
+        }
+
+        // Checking Inverse Diagonal
+        for (int j = 0; j < 3; j++) {
+            if (
+                    board[0][2] != opponentTurn &&
+                            board[0][2] != board[1][1] &&
+                            board[0][2] != board[2][0]
+            ) { possibilities++; }
+        }
+
+        return possibilities;
     }
 
     /**
