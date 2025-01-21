@@ -19,9 +19,10 @@ import java.util.List;
  */
 public class GameTree {
     // Constantes para la evaluación del tablero
-    private static final int VICTORIA_IA = 10;
-    private static final int VICTORIA_HUMANO = -10;
+    private static final int VICTORIA_IA = 1;
+    private static final int VICTORIA_HUMANO = -1;
     private static final int EMPATE = 0;
+    private static final int MAX = 9;
     
     private final GameTreeNode root;
 
@@ -60,8 +61,32 @@ public class GameTree {
 //    }
     
     private void buildTree(GameTreeNode node, int depth, boolean isMaximizing) {
-        if (isTerminalNode(node) || depth == 9) {
-            node.setUtility(evaluatePosition(node.getBoard()));
+        if (isTerminalNode(node) || depth >= MAX) {
+            // Primera verificación de las condiciones ganadoras
+            if (checkWin(node.getBoard(), node.getPlayerTurn().getTurn())) {
+                node.setUtility(VICTORIA_IA);
+                return;
+            }
+            if (checkWin(node.getBoard(), node.getOpponentTurn().getTurn())) {
+                node.setUtility(VICTORIA_HUMANO);
+                return;
+            }
+            if (isBoardFull(node.getBoard())) {
+                node.setUtility(EMPATE);
+                return;
+            }
+
+            // Si no es terminal por victoria o empate, calcula en función de las posibilidades
+            int playerPossibilities = node.calculatePossibilities(node.getPlayerTurn());
+            int opponentPossibilities = node.calculatePossibilities(node.getOpponentTurn());
+            
+            // Heavily weight positions that block opponent wins
+            int utility = (playerPossibilities * 2) - opponentPossibilities;
+            
+            // Posiciones de mucho peso que bloquean las victorias del oponente
+            utility += evaluatePosition(node.getBoard(), node.getPlayerTurn().getTurn());
+            
+            node.setUtility(utility);
             return;
         }
 
@@ -95,38 +120,55 @@ public class GameTree {
         child.setLastMove(move[0], move[1]);
         return child;
     }
+    private int evaluatePosition(char[][] board, char aiSymbol) {
+        int score = 0;
+        
+        // El control central es crucial
+        if (board[1][1] == aiSymbol) {
+            score += 30;
+        }
+        
+        // Las esquinas también son importantes
+        if (board[0][0] == aiSymbol) score += 15;
+        if (board[0][2] == aiSymbol) score += 15;
+        if (board[2][0] == aiSymbol) score += 15;
+        if (board[2][2] == aiSymbol) score += 15;
+        
+        return score;
+    }
+
+    public int[] findBestMove() {
+        buildTree(root, 0, true);
+        List<int[]> moves = root.getPossibleMoves();
+        int[] bestMove = null;
+        int bestValue = Integer.MIN_VALUE;
+
+        // Prioriza los movimientos ganadores
+        for (int[] move : moves) {
+            char[][] newBoard = root.copyBoard();
+            newBoard[move[0]][move[1]] = root.getPlayerTurn().getTurn();
+            
+            // Comprueba si este movimiento conduce a la victoria inmediata
+            if (checkWin(newBoard, root.getPlayerTurn().getTurn())) {
+                return move;
+            }
+            
+            GameTreeNode child = new GameTreeNode(newBoard, root.getPlayerTurn(), root.getOpponentTurn());
+            buildTree(child, 1, false);
+            
+            if (child.getUtility() > bestValue) {
+                bestValue = child.getUtility();
+                bestMove = move;
+            }
+        }
+
+        return bestMove;
+    }
     
     private boolean isTerminalNode(GameTreeNode node) {
         return checkWin(node.getBoard(), node.getPlayerTurn().getTurn()) ||
                checkWin(node.getBoard(), node.getOpponentTurn().getTurn()) ||
                isBoardFull(node.getBoard());
-    }
-
-    private int evaluatePosition(char[][] board) {
-        char aiSymbol = root.getPlayerTurn().getTurn();
-        char humanSymbol = root.getOpponentTurn().getTurn();
-
-        if (checkWin(board, aiSymbol)) return VICTORIA_IA;
-        if (checkWin(board, humanSymbol)) return VICTORIA_HUMANO;
-        if (isBoardFull(board)) return EMPATE;
-
-        // Strategic position evaluation
-        return evaluateStrategicPosition(board, aiSymbol);
-    }
-    
-     private int evaluateStrategicPosition(char[][] board, char aiSymbol) {
-        int score = 0;
-        
-        // Prefer center
-        if (board[1][1] == aiSymbol) score += 3;
-        
-        // Prefer corners
-        int[][] corners = {{0,0}, {0,2}, {2,0}, {2,2}};
-        for (int[] corner : corners) {
-            if (board[corner[0]][corner[1]] == aiSymbol) score += 2;
-        }
-        
-        return score;
     }
 
 
@@ -140,27 +182,6 @@ public class GameTree {
 //        return selectBestMove(root);
 //    }
      
-     public int[] findBestMove() {
-        buildTree(root, 0, true);
-        List<int[]> moves = root.getPossibleMoves();
-        int[] bestMove = null;
-        int bestValue = Integer.MIN_VALUE;
-
-        for (int[] move : moves) {
-            char[][] newBoard = root.copyBoard();
-            newBoard[move[0]][move[1]] = root.getPlayerTurn().getTurn();
-            
-            GameTreeNode child = new GameTreeNode(newBoard, root.getPlayerTurn(), root.getOpponentTurn());
-            buildTree(child, 1, false);
-            
-            if (child.getUtility() > bestValue) {
-                bestValue = child.getUtility();
-                bestMove = move;
-            }
-        }
-
-        return bestMove;
-    }
 
 //    public int[] selectBestMove(GameTreeNode root) {
 //        buildTree(root);
